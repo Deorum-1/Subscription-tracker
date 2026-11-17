@@ -1,5 +1,8 @@
 import { Router } from "express";
+import authMiddleware from "../middleware/auth.middleware.js";
 const subscriptionRouter = Router()
+
+subscriptionRouter.use(authMiddleware)
 
 subscriptionRouter.post('/', (reg, res) => {
     res.send({ title: 'GET all subscription' })
