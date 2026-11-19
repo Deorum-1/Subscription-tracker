@@ -1,3 +1,12 @@
+const escapeHtml = (value) =>
+    String(value ?? '').replace(/[&<>"']/g, (character) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+    })[character]);
+
 export const generateEmailTemplate = ({
     userName,
     subscriptionName,
@@ -18,31 +27,31 @@ export const generateEmailTemplate = ({
         </tr>
         <tr>
             <td style="padding: 40px 30px;">                
-                <p style="font-size: 16px; margin-bottom: 25px;">Hello <strong style="color: #4a90e2;">${userName}</strong>,</p>
+                <p style="font-size: 16px; margin-bottom: 25px;">Hello <strong style="color: #4a90e2;">${escapeHtml(userName)}</strong>,</p>
                 
-                <p style="font-size: 16px; margin-bottom: 25px;">Your <strong>${subscriptionName}</strong> subscription is set to renew on <strong style="color: #4a90e2;">${renewalDate}</strong> (${daysLeft} days from today).</p>
+                <p style="font-size: 16px; margin-bottom: 25px;">Your <strong>${escapeHtml(subscriptionName)}</strong> subscription is set to renew on <strong style="color: #4a90e2;">${escapeHtml(renewalDate)}</strong> (${escapeHtml(daysLeft)} days from today).</p>
                 
                 <table cellpadding="15" cellspacing="0" border="0" width="100%" style="background-color: #f0f7ff; border-radius: 10px; margin-bottom: 25px;">
                     <tr>
                         <td style="font-size: 16px; border-bottom: 1px solid #d0e3ff;">
-                            <strong>Plan:</strong> ${planName}
+                            <strong>Plan:</strong> ${escapeHtml(planName)}
                         </td>
                     </tr>
                     <tr>
                         <td style="font-size: 16px; border-bottom: 1px solid #d0e3ff;">
-                            <strong>Price:</strong> ${price}
+                            <strong>Price:</strong> ${escapeHtml(price)}
                         </td>
                     </tr>
                     <tr>
                         <td style="font-size: 16px;">
-                            <strong>Payment Method:</strong> ${paymentMethod}
+                            <strong>Payment Method:</strong> ${escapeHtml(paymentMethod)}
                         </td>
                     </tr>
                 </table>
                 
-                <p style="font-size: 16px; margin-bottom: 25px;">If you'd like to make changes or cancel your subscription, please visit your <a href="${accountSettingsLink}" style="color: #4a90e2; text-decoration: none;">account settings</a> before the renewal date.</p>
+                <p style="font-size: 16px; margin-bottom: 25px;">If you'd like to make changes or cancel your subscription, please visit your <a href="${escapeHtml(accountSettingsLink)}" style="color: #4a90e2; text-decoration: none;">account settings</a> before the renewal date.</p>
                 
-                <p style="font-size: 16px; margin-top: 30px;">Need help? <a href="${supportLink}" style="color: #4a90e2; text-decoration: none;">Contact our support team</a> anytime.</p>
+                <p style="font-size: 16px; margin-top: 30px;">Need help? <a href="${escapeHtml(supportLink)}" style="color: #4a90e2; text-decoration: none;">Contact our support team</a> anytime.</p>
                 
                 <p style="font-size: 16px; margin-top: 30px;">
                     Best regards,<br>
@@ -86,7 +95,7 @@ export const emailTemplates = [
         generateBody: (data) => generateEmailTemplate({ ...data, daysLeft: 2 }),
     },
     {
-        label: "1 days before reminder",
+        label: "1 day before reminder",
         generateSubject: (data) =>
             `⚡ Final Reminder: ${data.subscriptionName} Renews Tomorrow!`,
         generateBody: (data) => generateEmailTemplate({ ...data, daysLeft: 1 }),
