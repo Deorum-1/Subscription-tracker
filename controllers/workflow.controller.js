@@ -4,6 +4,7 @@ const require = createRequire(import.meta.url)
 
 const { serve } = require('@upstash/workflow/express')
 import Subscription from '../models/subscription.model.js';
+import { sendReminderEmail } from '../utils/send-email.js';
 
 const REMINDERS = [7, 5, 2, 1]
 
@@ -42,8 +43,8 @@ export const sendReminders = serve(async (context) => {
                 `Reminder ${daysBefore} days before`,
                 reminderDate
             );
-            await triggerReminder(context, `Reminder ${daysBefore} days before`)
-        }
+            await triggerReminder(context, `Reminder ${daysBefore} days before`, daysBefore, subscription)
+        } 
     }
 
     if (!hasFutureReminder) {
@@ -62,8 +63,14 @@ const sleepUntilReminder = async (context, label, reminderDate) => {
     await context.sleepUntil(label, reminderDate.toDate())
 }
 
-const triggerReminder = async (context, label) => {
-    return await context.run(label, () => {
-        console.log(`Triggering ${label} reminder`)
+const triggerReminder = async (context, label, daysBefore, subscription) => {
+    return await context.run(label, async () => {
+        const recipient = subscription.user?.email;
+        if (!recipient) {
+            throw new Error(`Cannot send ${label}: subscription owner has no email address`);
+        }
+
+        const type = `${daysBefore} ${daysBefore === 1 ? 'day' : 'days'} before reminder`;
+        return sendReminderEmail({ to: recipient, type, subscription });
     })
 }
