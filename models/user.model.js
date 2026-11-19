@@ -21,8 +21,17 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, 'User Password is required'],
         minLength: 6,
+        select: false,
     }
-}, { timestamps: true });
+}, {
+    timestamps: true,
+    toJSON: {
+        transform(_document, result) {
+            delete result.password;
+            return result;
+        },
+    },
+});
 
 const User = mongoose.model('User', userSchema)
 

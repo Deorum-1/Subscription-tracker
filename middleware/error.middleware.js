@@ -1,5 +1,9 @@
 const errorMiddleware = (err, req, res, next) => {
     try {
+        if (err.type === 'entity.parse.failed') {
+            return res.status(400).json({ success: false, error: 'Invalid JSON request body' });
+        }
+
         let error = { ...err };
         error.message = err.message
 

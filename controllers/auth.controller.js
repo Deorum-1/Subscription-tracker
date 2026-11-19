@@ -7,13 +7,25 @@ import User from '../models/user.model.js';
 // A request body is an object containing data from the client(POST request)
 
 export const signUp = async (req, res, next) => {
+    const { name, email, password } = req.body ?? {};
+
+    if (
+        typeof name !== 'string' || !name.trim() ||
+        typeof email !== 'string' || !email.trim() ||
+        typeof password !== 'string' || password.length < 6
+    ) {
+        const error = new Error('Name, email, and a password of at least 6 characters are required');
+        error.statusCode = 400;
+        return next(error);
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
     const session = await mongoose.startSession();
 
     try {
         session.startTransaction();
-        const { name, email, password } = req.body;
 
-        const existingUser = await User.findOne({ email });
+        const existingUser = await User.findOne({ email: normalizedEmail });
 
         if (existingUser) {
             const error = new Error('User already exists');
@@ -24,7 +36,7 @@ export const signUp = async (req, res, next) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        const [newUser] = await User.create([{ name, email, password: hashedPassword }], { session });
+        const [newUser] = await User.create([{ name: name.trim(), email: normalizedEmail, password: hashedPassword }], { session });
 
         const token = jwt.sign({ userId: newUser._id.toString() }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
         await session.commitTransaction();
@@ -47,10 +59,16 @@ export const signUp = async (req, res, next) => {
     }
 }
 export const signIn = async (req, res, next) => {
-    // signIn logic
     try {
-        const { email, password } = req.body;
-        const user = await User.findOne({ email })
+        const { email, password } = req.body ?? {};
+
+        if (typeof email !== 'string' || !email.trim() || typeof password !== 'string' || !password) {
+            const error = new Error('Email and password are required');
+            error.statusCode = 400;
+            throw error;
+        }
+
+        const user = await User.findOne({ email: email.trim().toLowerCase() }).select('+password')
 
         if (!user) {
             const error = new Error('User not found');
