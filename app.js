@@ -21,10 +21,20 @@ app.use('/api/v1/user', userRouter)
 app.use('/api/v1/users', userRouter)
 app.use('/api/v1/subscriptions', subscriptionRouter)
 app.use('/api/v1/workflow', workflowRouter)
-app.use(errorMiddleware)
 app.get('/', (req, res) => {
-    res.send('Welcome to the Subscription Tracker API!');
+    res.status(200).json({
+        success: true,
+        message: 'Welcome to the Subscription Tracker API',
+        version: 'v1',
+    });
 });
+app.get('/health', (_req, res) => {
+    res.status(200).json({ success: true, status: 'healthy' });
+});
+app.use((_req, res) => {
+    res.status(404).json({ success: false, error: 'Route not found' });
+});
+app.use(errorMiddleware)
 
 app.listen(PORT, async () => {
     console.log(`Subscription Tracker API is running on http://localhost:${PORT}`);

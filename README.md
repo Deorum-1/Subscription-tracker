@@ -87,7 +87,13 @@ Authorization: Bearer <token>
 | Method | Path | Description |
 | --- | --- | --- |
 | `POST` | `/api/v1/subscriptions` | Create a subscription (requires a JWT) |
-| `GET` | `/api/v1/subscriptions/user/:id` | List the authenticated user's subscriptions (the ID must match the token) |
+| `GET` | `/api/v1/subscriptions` | List the authenticated user's subscriptions |
+| `GET` | `/api/v1/subscriptions/user/:id` | List subscriptions for the matching authenticated user |
+| `GET` | `/api/v1/subscriptions/upcoming-renewals?days=30` | List active renewals in the next 30 days |
+| `GET` | `/api/v1/subscriptions/:id` | Get one of the authenticated user's subscriptions |
+| `PUT` | `/api/v1/subscriptions/:id` | Update one of the authenticated user's subscriptions |
+| `PATCH` | `/api/v1/subscriptions/:id/cancel` | Cancel one of the authenticated user's subscriptions |
+| `DELETE` | `/api/v1/subscriptions/:id` | Delete one of the authenticated user's subscriptions |
 
 Example subscription body:
 
